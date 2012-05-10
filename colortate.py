@@ -3,9 +3,16 @@ from PySide.QtGui import *
 
 import re
 
-color_rex = re.compile("(?P<color>#[0-9a-fA-F]{3}|#[0-9a-fA-F]{6})")
+color_rex = re.compile(
+      """(?P<hexcolor>#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})|(?P<rgbfunc>rgb[(](?P<r>[0-9]+), (?P<g>[0-9]+), (?P<b>[0-9]+)[)])""")
 
 HUE_THRESH = 20
+
+def parse_color(match):
+    if match.group("hexcolor"):
+        return QColor(match.group("hexcolor"))
+    elif match.group("rgbfunc"):
+        return QColor.fromRgb(int(match.group("r")), int(match.group("g")), int(match.group("b")))
 
 class ColorRotatorWindow(QDialog):
     def __init__(self):
@@ -50,9 +57,9 @@ class ColorRotatorWindow(QDialog):
     def open_stylefile(self, filename):
         print "reading stylefile", filename
         def replace_with_placeholder(match):
-            color_obj = QColor(match.group("color"))
+            color_obj = parse_color(match)
 
-            match = [key for key, value in self.knowncolors.iter_items() if value == color_obj]
+            match = [key for key, value in self.knowncolors.iteritems() if value == color_obj]
             if match:
                 return "%(" + match[0] + ")s"
             else:
@@ -64,13 +71,10 @@ class ColorRotatorWindow(QDialog):
         with open(filename, "r") as f:
             text = f.read()
 
-        colors_from_text = color_rex.findall(text)
+        color_rex.findall(text)
+        new_text = color_rex.sub(replace_with_placeholder, text)
 
-        print colors_from_text
-
-        new_text = color_rex.sub(replace_with_placeholder)
-
-        print new_text
+        self.stylefiles[filename] = new_text
 
 if __name__ == "__main__":
     import sys
