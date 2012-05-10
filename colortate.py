@@ -8,11 +8,21 @@ color_rex = re.compile(
 
 HUE_THRESH = 20
 
+ICON_W, ICON_H = 40, 20
+
 def parse_color(match):
     if match.group("hexcolor"):
         return QColor(match.group("hexcolor"))
     elif match.group("rgbfunc"):
         return QColor.fromRgb(int(match.group("r")), int(match.group("g")), int(match.group("b")))
+
+def colored_icon(color_a, color_b):
+    icon = QPixmap(ICON_W, ICON_H)
+    icon.fill(color_a)
+    qp = QPainter(icon)
+    qp.fillRect(QRect(ICON_W/2, 0, ICON_W/2, ICON_H), color_b)
+    qp.end()
+    return icon
 
 class ColorRotatorWindow(QDialog):
     def __init__(self):
@@ -23,20 +33,22 @@ class ColorRotatorWindow(QDialog):
 
         self.groups = []
         self.group_rotations = []
+        self.color_items = {}
 
         self.setup_ui()
 
     def setup_ui(self):
-        self.colist = QListWidget()
+        self.cotree = QTreeWidget()
+        self.cotree.setIconSize(QSize(ICON_W, ICON_H))
         self.cowheel = QWidget()
-        self.rotate_slider = QSlider()
+        self.slider_box = QHBoxLayout()
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addWidget(self.cowheel)
-        self.vlayout.addWidget(self.rotate_slider)
+        self.vlayout.addLayout(self.slider_box)
 
         self.hlayout = QHBoxLayout()
-        self.hlayout.addWidget(self.colist)
+        self.hlayout.addWidget(self.cotree)
         self.hlayout.addLayout(self.vlayout)
 
         self.setLayout(self.hlayout)
@@ -52,7 +64,19 @@ class ColorRotatorWindow(QDialog):
 
         # no group was found, create a new one.
         self.groups.append([color])
-        self.group_rotations.append([0])
+        self.group_rotations.append(0)
+
+        group_number = len(self.groups) - 1
+        def adjust_color(number):
+            self.group_rotations[group_number] = number
+            for col in self.groups[group_number]:
+                self.color_items[col.name()].setIcon(0, colored_icon(col, self.color_transform(col, group_number)))
+
+        slider = QSlider()
+        slider.setRange(0, 360)
+        slider.setTracking(True)
+        self.slider_box.addWidget(slider)
+        slider.valueChanged.connect(adjust_color)
 
     def open_stylefile(self, filename):
         print "reading stylefile", filename
@@ -75,6 +99,42 @@ class ColorRotatorWindow(QDialog):
         new_text = color_rex.sub(replace_with_placeholder, text)
 
         self.stylefiles[filename] = new_text
+
+        self.update_color_tree()
+
+    def update_color_tree(self):
+        self.cotree.clear()
+        self.color_items = {}
+        for index, g in enumerate(self.groups):
+            par_it = QTreeWidgetItem(str(index))
+            self.cotree.addTopLevelItem(par_it)
+            self.cotree.expandItem(par_it)
+
+            sorted_colors = g[:]
+            sorted_colors.sort(key = lambda c: c.value())
+
+            for color in sorted_colors:
+                col_it = QTreeWidgetItem([color.name()])
+                col_it.setIcon(0, colored_icon(color, self.color_transform(color)))
+                self.color_items[color.name()] = col_it
+
+                par_it.addChild(col_it)
+
+    def color_transform(self, color, groupnum=None):
+        if not groupnum:
+            groupmatches = [idx for idx, g in enumerate(self.groups) if color in g]
+            assert len(groupmatches) == 1
+            groupnum = groupmatches[0]
+        hue_transform = self.group_rotations[groupnum]
+
+        old_hsv = color.hue(), color.hsvSaturation(), color.value()
+        new_hsv = (old_hsv[0] + hue_transform)%360, old_hsv[1], old_hsv[2]
+        if old_hsv[0] == -1:
+            return color
+
+
+        newc = QColor.fromHsv(*new_hsv)
+        return newc
 
 if __name__ == "__main__":
     import sys
