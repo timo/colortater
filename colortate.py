@@ -76,8 +76,11 @@ class ColorRotatorWindow(QDialog):
             for col in self.groups[group_number]:
                 self.color_items[col.name()].setIcon(0, colored_icon(col, self.color_transform(col, group_number)))
 
+        hue = color.hue()
+
         slider = QSlider()
-        slider.setRange(0, 360)
+        slider.setRange(-hue, 360 - hue)
+        slider.setValue(0)
         slider.setTracking(True)
         self.slider_box.addWidget(slider)
         slider.valueChanged.connect(adjust_color)
