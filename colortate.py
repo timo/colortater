@@ -2,6 +2,7 @@ from PySide.QtCore import *
 from PySide.QtGui import *
 
 import re
+import shutil
 
 color_rex = re.compile(
       """(?P<hexcolor>#[0-9a-fA-F]{6}|#[0-9a-fA-F]{3})|(?P<rgbfunc>rgb[(](?P<r>[0-9]+), (?P<g>[0-9]+), (?P<b>[0-9]+)[)])""")
@@ -40,12 +41,15 @@ class ColorRotatorWindow(QDialog):
     def setup_ui(self):
         self.cotree = QTreeWidget()
         self.cotree.setIconSize(QSize(ICON_W, ICON_H))
-        self.cowheel = QWidget()
+
+        self.write_button = QPushButton("save")
+        self.write_button.clicked.connect(self.write_files)
+
         self.slider_box = QHBoxLayout()
 
         self.vlayout = QVBoxLayout()
-        self.vlayout.addWidget(self.cowheel)
         self.vlayout.addLayout(self.slider_box)
+        self.vlayout.addWidget(self.write_button)
 
         self.hlayout = QHBoxLayout()
         self.hlayout.addWidget(self.cotree)
@@ -95,7 +99,10 @@ class ColorRotatorWindow(QDialog):
         with open(filename, "r") as f:
             text = f.read()
 
+        shutil.copy(filename, filename + ".bak")
+
         color_rex.findall(text)
+        text = text.replace("%", "%%") # escape format string syntax
         new_text = color_rex.sub(replace_with_placeholder, text)
 
         self.stylefiles[filename] = new_text
@@ -136,12 +143,20 @@ class ColorRotatorWindow(QDialog):
         newc = QColor.fromHsv(*new_hsv)
         return newc
 
+    def write_files(self):
+        transformed_colors = dict((name, self.color_transform(color).name()) for name, color in self.knowncolors.iteritems())
+        for filename, text in self.stylefiles.iteritems():
+            with open(filename, "w") as f:
+                f.write(text % transformed_colors)
+
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
     w = ColorRotatorWindow()
     w.show()
 
-    w.open_stylefile("style.css")
+    if len(sys.argv) > 1:
+        for v in sys.argv[1:]:
+            w.open_stylefile(v)
 
     sys.exit(app.exec_())
