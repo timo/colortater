@@ -92,7 +92,7 @@ class ColorRotatorWindow(QDialog):
         layout.addWidget(label)
 
         reset = QPushButton("R")
-        reset.setMinimumWidth(30)
+        reset.setFixedWidth(25)
         layout.addWidget(reset)
 
         slider = QSlider()
@@ -137,7 +137,6 @@ class ColorRotatorWindow(QDialog):
             pairs = line_one.lstrip("/").split(",")
             unpacked_pairs = [pair.split(":") for pair in pairs]
             group_values = dict(map(lambda (k, v): (k, int(v)), unpacked_pairs))
-            print "got group values: %r" % group_values
 
             with open(filename + ".src", "r") as f:
                 text = f.read()
@@ -151,8 +150,6 @@ class ColorRotatorWindow(QDialog):
         new_text = color_rex.sub(replace_with_placeholder, text)
 
         self.stylefiles[filename] = new_text
-
-        print self.group_rotations
 
         if group_values:
             for gidx, group in enumerate(self.groups):
@@ -200,6 +197,7 @@ class ColorRotatorWindow(QDialog):
     def write_files(self):
         transformed_colors = dict((name, self.color_transform(color).name()) for name, color in self.knowncolors.iteritems())
         for filename, text in self.stylefiles.iteritems():
+            print "writing %s" % filename
             with open(filename, "w") as f:
                 f.write("// ")
                 pairs = []
