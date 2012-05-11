@@ -36,6 +36,7 @@ class ColorRotatorWindow(QDialog):
         self.group_rotations = []
         self.color_items = {}
 
+        self.sliders = []
         self.setup_ui()
 
     def setup_ui(self):
@@ -89,6 +90,7 @@ class ColorRotatorWindow(QDialog):
         layout.addWidget(reset)
 
         slider = QSlider()
+        self.sliders.append(slider)
         slider.setRange(-hue, 360 - hue)
         slider.setValue(0)
         slider.setTracking(True)
@@ -149,6 +151,7 @@ class ColorRotatorWindow(QDialog):
             for gidx, group in enumerate(self.groups):
                 if group[0].name() in group_values:
                     self.group_rotations[gidx] = group_values[group[0].name()]
+                    self.sliders[gidx].setValue(group_values[group[0].name()])
 
         self.update_color_tree()
 
