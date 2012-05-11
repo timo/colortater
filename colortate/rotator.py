@@ -50,8 +50,9 @@ class ColorRotator(object):
 
     def rotate_group(self, representant, value):
         for gidx, group in enumerate(self.groups):
-            if group[0].name() == representant:
+            if group[0].name().replace("#","") == representant.replace("#",""):
                 self.group_rotations[gidx] = (self.group_rotations[gidx] + value) % 360
+                print "adjusting %d" % gidx
                 return True
         return False
 

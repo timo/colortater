@@ -3,13 +3,13 @@ def main():
 
     ap = argparse.ArgumentParser()
 
-    ap.add_argument("--headless", action="store_true",
+    ap.add_argument("--headless", "-H", action="store_true",
             help="read new adjustment values from files and re-write the updated versions")
 
-    ap.add_argument("--adjust", nargs=2, metavar=["representant", "value"],
+    ap.add_argument("--adjust", "-a", nargs=2, metavar=["representant", "value"], action="append",
             help="adjust the group belonging to representant by value.")
 
-    ap.add_argument("--groups",
+    ap.add_argument("--groups", "-g", action="store_true",
             help="display groups and their representants")
 
     ap.add_argument("filenames", nargs="+",
@@ -24,13 +24,15 @@ def main():
 
         if args.groups:
             for group in cr.groups:
-                print "%s: %r" % (group[0].name(), map(lambda x:x.name(), group))
+                print "%s: %s" % (group[0].name(), " ".join(map(lambda x:x.name(), group)))
 
-        for representant, value in args.adjust:
+        print args.adjust
+
+        for representant, value in args.adjust or []:
             print "adjusting %s by %r" % (representant, value)
             value = int(value)
             if not cr.rotate_group(representant, value):
-                return "  couldn't find group for %r" % (representant)
+                print "  couldn't find group for %r" % (representant)
 
         cr.write_files()
 
