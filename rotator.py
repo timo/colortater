@@ -11,8 +11,6 @@ color_rex = re.compile(
 
 HUE_THRESH = 20
 
-ICON_W, ICON_H = 40, 20
-
 def parse_color(match):
     if match.group("hexcolor"):
         return QColor(match.group("hexcolor"))
@@ -40,7 +38,9 @@ class ColorRotator(object):
             # XXX this may lead to imprecise stuff
             # or dependance on order of colors in the file.
             representant = group[0]
-            if abs(representant.hue() - color.hue()) < HUE_THRESH:
+            h1 = representant.hue()
+            h2 = color.hue()
+            if min(abs(h1 - h2), abs(360 + h1 - h2)) < HUE_THRESH:
                 group.append(color)
                 return
 
