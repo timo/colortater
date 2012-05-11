@@ -49,6 +49,7 @@ class ColorRotatorWindow(QDialog):
     def setup_ui(self):
         self.cotree = QTreeWidget()
         self.cotree.setIconSize(QSize(ICON_W, ICON_H))
+        self.cotree.setHeaderHidden(True)
 
         self.write_button = QPushButton("save")
         self.write_button.clicked.connect(self.write_files)
@@ -95,12 +96,12 @@ class ColorRotatorWindow(QDialog):
 
         layout = QVBoxLayout()
 
-        label = QLabel(str(len(self.groups)))
-        layout.addWidget(label)
-
         reset = QPushButton("R")
         reset.setFixedWidth(25)
         layout.addWidget(reset)
+
+        label = QLabel(str(len(self.groups)))
+        layout.addWidget(label)
 
         slider = QSlider()
         self.sliders.append(slider)
