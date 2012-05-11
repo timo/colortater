@@ -48,6 +48,13 @@ class ColorRotator(object):
         self.groups.append([color])
         self.group_rotations.append(0)
 
+    def rotate_group(self, representant, value):
+        for gidx, group in enumerate(self.groups):
+            if group[0].name() == representant:
+                self.group_rotations[gidx] = (self.group_rotations[gidx] + value) % 360
+                return True
+        return False
+
     def open_stylefile(self, filename):
         print "reading stylefile", filename
         def replace_with_placeholder(match):
