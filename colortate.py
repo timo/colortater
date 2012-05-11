@@ -81,6 +81,9 @@ class ColorRotatorWindow(QDialog):
 
         layout = QVBoxLayout()
 
+        label = QLabel(str(len(self.groups)))
+        layout.addWidget(label)
+
         reset = QPushButton("R")
         reset.setMinimumWidth(30)
         layout.addWidget(reset)
@@ -153,7 +156,7 @@ class ColorRotatorWindow(QDialog):
         self.cotree.clear()
         self.color_items = {}
         for index, g in enumerate(self.groups):
-            par_it = QTreeWidgetItem(str(index))
+            par_it = QTreeWidgetItem(str(index + 1))
             self.cotree.addTopLevelItem(par_it)
             self.cotree.expandItem(par_it)
 
