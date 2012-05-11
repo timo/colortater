@@ -13,6 +13,39 @@ def colored_icon(color_a, color_b):
     qp.end()
     return icon
 
+class ColorPicker(QLabel):
+    acceptColor = Signal(QColor)
+    hoverNewColor = Signal(QColor)
+
+    def __init__(self):
+        super(ColorPicker, self).__init__()
+
+        self.dragging = False
+        self.accepted = QColor("white")
+        self.color = QColor("black")
+
+        self.setPixmap(colored_icon(self.accepted, self.color))
+
+    def mousePressEvent(self, event):
+        self.dragging = True
+
+    def mouseMoveEvent(self, event):
+        globalpos = self.mapToGlobal(event.pos())
+        pixels = QPixmap.grabWindow(QApplication.desktop().winId(), globalpos.x(), globalpos.y(), 1, 1)
+        prevcolor = self.color
+        self.color = QColor(pixels.toImage().pixel(0, 0))
+
+        if self.color != prevcolor:
+            self.setPixmap(colored_icon(self.accepted, self.color))
+
+            self.hoverNewColor.emit(self.color)
+
+    def mouseReleaseEvent(self, event):
+        self.dragging = False
+        self.accepted = self.color
+        self.setPixmap(colored_icon(self.accepted, self.color))
+        self.acceptColor.emit(self.accepted)
+
 class ColorRotatorWindow(QDialog):
     def __init__(self, stylefiles):
         super(ColorRotatorWindow, self).__init__()
@@ -35,11 +68,23 @@ class ColorRotatorWindow(QDialog):
 
         self.reset_button = QPushButton("reset all")
 
+        self.colorpickers = QHBoxLayout()
+        self.colorpicker = ColorPicker()
+        self.colorpicker.hoverNewColor.connect(self.find_color)
+        self.transformedpicker = ColorPicker()
+        self.transformedpicker.hoverNewColor.connect(self.find_transformed_color)
+
+        self.colorpickers.addWidget(QLabel("pick original:"))
+        self.colorpickers.addWidget(self.colorpicker)
+        self.colorpickers.addWidget(QLabel("pick transformed:"))
+        self.colorpickers.addWidget(self.transformedpicker)
+
         self.slider_box = QHBoxLayout()
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addWidget(self.reset_button)
         self.vlayout.addLayout(self.slider_box)
+        self.vlayout.addLayout(self.colorpickers)
         self.vlayout.addWidget(self.write_button)
 
         self.hlayout = QHBoxLayout()
@@ -123,4 +168,12 @@ class ColorRotatorWindow(QDialog):
                 self.color_items[color.name()] = col_it
 
                 par_it.addChild(col_it)
+
+    def find_color(self, color, transformed=False):
+        match = self.cr.match_color_to_group(color, transformed)
+        if match is not None:
+            self.cotree.setCurrentItem(self.cotree.topLevelItem(match))
+
+    def find_transformed_color(self, color):
+        self.find_color(color, transformed=True)
 

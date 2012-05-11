@@ -33,16 +33,23 @@ class ColorRotator(object):
 
         self.read_adjustment_values()
 
-    def new_color(self, color):
-        for group in self.groups:
-            # XXX this may lead to imprecise stuff
-            # or dependance on order of colors in the file.
+    def match_color_to_group(self, color, transformed = False):
+        for gid, group in enumerate(self.groups):
             representant = group[0]
+            if transformed:
+                representant = self.color_transform(representant, gid)
             h1 = representant.hue()
             h2 = color.hue()
             if min(abs(h1 - h2), abs(360 + h1 - h2)) < HUE_THRESH:
-                group.append(color)
-                return
+                return gid
+
+        return None
+
+    def new_color(self, color):
+        match = self.match_color_to_group(color)
+        if match is not None:
+            self.groups[match].append(color)
+            return
 
         # no group was found, create a new one.
         self.groups.append([color])
