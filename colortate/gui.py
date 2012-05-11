@@ -68,15 +68,23 @@ class ColorRotatorWindow(QDialog):
 
         self.reset_button = QPushButton("reset all")
 
+        self.colorpickers = QHBoxLayout()
         self.colorpicker = ColorPicker()
         self.colorpicker.hoverNewColor.connect(self.find_color)
+        self.transformedpicker = ColorPicker()
+        self.transformedpicker.hoverNewColor.connect(self.find_transformed_color)
+
+        self.colorpickers.addWidget(QLabel("pick original:"))
+        self.colorpickers.addWidget(self.colorpicker)
+        self.colorpickers.addWidget(QLabel("pick transformed:"))
+        self.colorpickers.addWidget(self.transformedpicker)
 
         self.slider_box = QHBoxLayout()
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addWidget(self.reset_button)
         self.vlayout.addLayout(self.slider_box)
-        self.vlayout.addWidget(self.colorpicker)
+        self.vlayout.addLayout(self.colorpickers)
         self.vlayout.addWidget(self.write_button)
 
         self.hlayout = QHBoxLayout()
@@ -161,8 +169,11 @@ class ColorRotatorWindow(QDialog):
 
                 par_it.addChild(col_it)
 
-    def find_color(self, color):
-        match = self.cr.match_color_to_group(color)
+    def find_color(self, color, transformed=False):
+        match = self.cr.match_color_to_group(color, transformed)
         if match is not None:
             self.cotree.setCurrentItem(self.cotree.topLevelItem(match))
+
+    def find_transformed_color(self, color):
+        self.find_color(color, transformed=True)
 
