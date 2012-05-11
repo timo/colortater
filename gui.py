@@ -3,6 +3,8 @@ from PySide.QtGui import *
 
 from rotator import ColorRotator
 
+ICON_W, ICON_H = 40, 20
+
 def colored_icon(color_a, color_b):
     icon = QPixmap(ICON_W, ICON_H)
     icon.fill(color_a)
