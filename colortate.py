@@ -207,7 +207,7 @@ if __name__ == "__main__":
     w.show()
 
     if len(sys.argv) > 1:
-        for v in sys.argv[1:]:
+        for v in sorted(sys.argv[1:]):
             w.open_stylefile(v)
 
     sys.exit(app.exec_())
