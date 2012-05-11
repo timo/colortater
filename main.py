@@ -19,8 +19,7 @@ if __name__ == "__main__":
         cr.write_files()
 
     else:
-        from gui import ColorRotatorWindow
-        from PySide.QtCore import QApplication
+        from gui import ColorRotatorWindow, QApplication
 
         app = QApplication(sys.argv, not args.headless)
         w = ColorRotatorWindow(args.filenames)
