@@ -1,5 +1,4 @@
-if __name__ == "__main__":
-    import sys
+def main():
     import argparse
 
     ap = argparse.ArgumentParser()
@@ -19,9 +18,13 @@ if __name__ == "__main__":
         cr.write_files()
 
     else:
+        import sys
         from gui import ColorRotatorWindow, QApplication
 
         app = QApplication(sys.argv, not args.headless)
         w = ColorRotatorWindow(args.filenames)
         w.show()
         sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()
