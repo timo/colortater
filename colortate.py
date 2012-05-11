@@ -91,7 +91,9 @@ class ColorRotatorWindow(QDialog):
         slider.valueChanged.connect(adjust_color)
 
         def reset_color():
-            slider.setValue(0)
+            slider.setSliderPosition(0)
+            adjust_color(0)
+
         reset.clicked.connect(reset_color)
 
         layout.addWidget(slider)
