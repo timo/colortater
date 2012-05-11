@@ -99,7 +99,7 @@ class ColorRotatorWindow(QDialog):
             else:
                 group = blob
 
-            gnum = int(group.text(0)) - 1
+            gnum = int(group.text(0).split(" ")[0]) - 1
             slider = self.sliders[gnum]
             if activate:
                 slider.setStyleSheet("background-color: lightblue;")
@@ -110,7 +110,7 @@ class ColorRotatorWindow(QDialog):
         self.cotree.clear()
         self.color_items = {}
         for index, g in enumerate(self.cr.groups):
-            par_it = QTreeWidgetItem(str(index + 1))
+            par_it = QTreeWidgetItem(("%d - %s" % (index + 1, g[0].name()), ))
             self.cotree.addTopLevelItem(par_it)
             self.cotree.expandItem(par_it)
 
