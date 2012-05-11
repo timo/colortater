@@ -41,9 +41,6 @@ class QColor(object):
         self.s = s / 255.
         self.v = v / 255.
         self.update_rgb()
-        print "got hsv %r %r %r" % (self.h, self.s, self.v)
-        print "set rgb to %r %r %r" % (self.r, self.g, self.b)
-        print
 
     def update_hsv(self):
         self.h, self.s, self.v = colorsys.rgb_to_hsv(self.r, self.g, self.b)
