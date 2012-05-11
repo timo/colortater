@@ -13,6 +13,32 @@ def colored_icon(color_a, color_b):
     qp.end()
     return icon
 
+class ColorPicker(QLabel):
+    acceptColor = Signal(QColor)
+
+    def __init__(self):
+        super(ColorPicker, self).__init__()
+
+        self.dragging = False
+        self.accepted = QColor("white")
+        self.color = QColor("black")
+
+        self.setPixmap(colored_icon(self.accepted, self.color))
+
+    def mousePressEvent(self, event):
+        self.dragging = True
+
+    def mouseMoveEvent(self, event):
+        globalpos = self.mapToGlobal(event.pos())
+        pixels = QPixmap.grabWindow(QApplication.desktop().winId(), globalpos.x(), globalpos.y(), 1, 1)
+        self.color = QColor(pixels.toImage().pixel(0, 0))
+        self.setPixmap(colored_icon(self.accepted, self.color))
+
+    def mouseReleaseEvent(self, event):
+        self.dragging = False
+        self.accepted = self.color
+        self.acceptColor.emit(self.accepted)
+
 class ColorRotatorWindow(QDialog):
     def __init__(self, stylefiles):
         super(ColorRotatorWindow, self).__init__()
@@ -35,11 +61,14 @@ class ColorRotatorWindow(QDialog):
 
         self.reset_button = QPushButton("reset all")
 
+        self.colorpicker = ColorPicker()
+
         self.slider_box = QHBoxLayout()
 
         self.vlayout = QVBoxLayout()
         self.vlayout.addWidget(self.reset_button)
         self.vlayout.addLayout(self.slider_box)
+        self.vlayout.addWidget(self.colorpicker)
         self.vlayout.addWidget(self.write_button)
 
         self.hlayout = QHBoxLayout()
