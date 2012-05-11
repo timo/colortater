@@ -46,9 +46,12 @@ class ColorRotatorWindow(QDialog):
         self.write_button = QPushButton("save")
         self.write_button.clicked.connect(self.write_files)
 
+        self.reset_button = QPushButton("reset all")
+
         self.slider_box = QHBoxLayout()
 
         self.vlayout = QVBoxLayout()
+        self.vlayout.addWidget(self.reset_button)
         self.vlayout.addLayout(self.slider_box)
         self.vlayout.addWidget(self.write_button)
 
@@ -75,7 +78,10 @@ class ColorRotatorWindow(QDialog):
         def adjust_color(number):
             self.group_rotations[group_number] = number
             for col in self.groups[group_number]:
-                self.color_items[col.name()].setIcon(0, colored_icon(col, self.color_transform(col, group_number)))
+                try:
+                    self.color_items[col.name()].setIcon(0, colored_icon(col, self.color_transform(col, group_number)))
+                except IndexError:
+                    pass # we may have not created the tree at all yet.
             self.cotree.scrollToItem(self.color_items[self.groups[group_number][0].name()])
 
         hue = color.hue()
@@ -101,6 +107,7 @@ class ColorRotatorWindow(QDialog):
             adjust_color(0)
 
         reset.clicked.connect(reset_color)
+        self.reset_button.clicked.connect(reset_color)
 
         layout.addWidget(slider)
 
