@@ -9,7 +9,7 @@ Comes with a gui version and headless version for automation.
 from setuptools import setup, find_packages
 
 setup(
-      name = 'colortate',
+      name = 'colortater',
       version = VERSION,
       author = 'Timo Paulssen',
       description = '',
@@ -19,7 +19,7 @@ setup(
       packages = find_packages(),
       entry_points="""
           [console_scripts]
-          colortate = colortate.main.main
+          colortater = colortater.main.main
       """,
     )
 

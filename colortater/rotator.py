@@ -29,7 +29,7 @@ class ColorRotator(object):
         for stylefile in stylefiles:
             self.open_stylefile(stylefile)
 
-        self.adjustment_filename = path.join(path.dirname(sorted(self.stylefiles.keys())[0]), "colortate.dat")
+        self.adjustment_filename = path.join(path.dirname(sorted(self.stylefiles.keys())[0]), "colortater.dat")
 
         self.read_adjustment_values()
 
