@@ -15,6 +15,7 @@ def colored_icon(color_a, color_b):
 
 class ColorPicker(QLabel):
     acceptColor = Signal(QColor)
+    hoverNewColor = Signal(QColor)
 
     def __init__(self):
         super(ColorPicker, self).__init__()
@@ -31,12 +32,18 @@ class ColorPicker(QLabel):
     def mouseMoveEvent(self, event):
         globalpos = self.mapToGlobal(event.pos())
         pixels = QPixmap.grabWindow(QApplication.desktop().winId(), globalpos.x(), globalpos.y(), 1, 1)
+        prevcolor = self.color
         self.color = QColor(pixels.toImage().pixel(0, 0))
-        self.setPixmap(colored_icon(self.accepted, self.color))
+
+        if self.color != prevcolor:
+            self.setPixmap(colored_icon(self.accepted, self.color))
+
+            self.hoverNewColor.emit(self.color)
 
     def mouseReleaseEvent(self, event):
         self.dragging = False
         self.accepted = self.color
+        self.setPixmap(colored_icon(self.accepted, self.color))
         self.acceptColor.emit(self.accepted)
 
 class ColorRotatorWindow(QDialog):
@@ -62,6 +69,7 @@ class ColorRotatorWindow(QDialog):
         self.reset_button = QPushButton("reset all")
 
         self.colorpicker = ColorPicker()
+        self.colorpicker.hoverNewColor.connect(self.find_color)
 
         self.slider_box = QHBoxLayout()
 
@@ -152,4 +160,9 @@ class ColorRotatorWindow(QDialog):
                 self.color_items[color.name()] = col_it
 
                 par_it.addChild(col_it)
+
+    def find_color(self, color):
+        match = self.cr.match_color_to_group(color)
+        if match is not None:
+            self.cotree.setCurrentItem(self.cotree.topLevelItem(match))
 
