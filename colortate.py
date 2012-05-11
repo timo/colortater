@@ -50,6 +50,7 @@ class ColorRotatorWindow(QDialog):
         self.cotree = QTreeWidget()
         self.cotree.setIconSize(QSize(ICON_W, ICON_H))
         self.cotree.setHeaderHidden(True)
+        self.cotree.currentItemChanged.connect(self.on_tree_item_changed)
 
         self.write_button = QPushButton("save")
         self.write_button.clicked.connect(self.write_files)
@@ -68,6 +69,22 @@ class ColorRotatorWindow(QDialog):
         self.hlayout.addLayout(self.vlayout)
 
         self.setLayout(self.hlayout)
+
+    def on_tree_item_changed(self, current, prev):
+        for activate, blob in zip((False, True), (prev, current)):
+            if not blob: continue
+
+            if blob.childCount() == 0:
+                group = blob.parent()
+            else:
+                group = blob
+
+            gnum = int(group.text(0)) - 1
+            slider = self.sliders[gnum]
+            if activate:
+                slider.setStyleSheet("background-color: lightblue;")
+            else:
+                slider.setStyleSheet("")
 
     def new_color(self, color):
         for group in self.groups:
