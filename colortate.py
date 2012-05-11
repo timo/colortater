@@ -83,9 +83,9 @@ class ColorRotatorWindow(QDialog):
             for col in self.groups[group_number]:
                 try:
                     self.color_items[col.name()].setIcon(0, colored_icon(col, self.color_transform(col, group_number)))
-                except IndexError:
+                    self.cotree.scrollToItem(self.color_items[self.groups[group_number][0].name()])
+                except KeyError:
                     pass # we may have not created the tree at all yet.
-            self.cotree.scrollToItem(self.color_items[self.groups[group_number][0].name()])
 
         hue = color.hue()
 
