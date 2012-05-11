@@ -7,7 +7,7 @@ def main():
             help="read new adjustment values from files and re-write the updated versions")
 
     ap.add_argument("--adjust", "-a", nargs=2, metavar=["representant", "value"], action="append",
-            help="adjust the group belonging to representant by value.")
+            help="adjust the group belonging to representant by value or to an absolute =value.")
 
     ap.add_argument("--groups", "-g", action="store_true",
             help="display groups and their representants")
@@ -26,12 +26,16 @@ def main():
             for group in cr.groups:
                 print "%s: %s" % (group[0].name(), " ".join(map(lambda x:x.name(), group)))
 
-        print args.adjust
-
         for representant, value in args.adjust or []:
-            print "adjusting %s by %r" % (representant, value)
-            value = int(value)
-            if not cr.rotate_group(representant, value):
+            if value.startswith("="):
+                value = int(value[1:])
+                absolute = True
+                print "adjusting %s to %r" % (representant, value)
+            else:
+                print "adjusting %s by %r" % (representant, value)
+                value = int(value)
+                absolute = False
+            if not cr.rotate_group(representant, value, absolute):
                 print "  couldn't find group for %r" % (representant)
 
         cr.write_files()
