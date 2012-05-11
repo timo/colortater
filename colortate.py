@@ -26,7 +26,7 @@ def colored_icon(color_a, color_b):
     return icon
 
 class ColorRotatorWindow(QDialog):
-    def __init__(self):
+    def __init__(self, stylefiles):
         super(ColorRotatorWindow, self).__init__()
 
         self.stylefiles = {}
@@ -38,6 +38,9 @@ class ColorRotatorWindow(QDialog):
 
         self.sliders = []
         self.setup_ui()
+
+        for stylefile in stylefiles:
+            self.open_stylefile(stylefile)
 
     def setup_ui(self):
         self.cotree = QTreeWidget()
@@ -210,12 +213,25 @@ class ColorRotatorWindow(QDialog):
 
 if __name__ == "__main__":
     import sys
-    app = QApplication(sys.argv)
-    w = ColorRotatorWindow()
-    w.show()
+    import argparse
 
-    if len(sys.argv) > 1:
-        for v in sorted(sys.argv[1:]):
-            w.open_stylefile(v)
+    ap = argparse.ArgumentParser()
+
+    ap.add_argument("--headless", action="store_true",
+            help="read new adjustment values from files and re-write the updated versions")
+
+    ap.add_argument("filenames", nargs="+",
+            help="css files to read/write.")
+
+    args = ap.parse_args()
+
+    app = QApplication(sys.argv)
+    w = ColorRotatorWindow(args.filenames)
+
+    if not args.headless:
+        w.show()
+    else:
+        w.write_files()
+        sys.exit(0)
 
     sys.exit(app.exec_())
