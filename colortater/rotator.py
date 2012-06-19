@@ -82,14 +82,14 @@ class ColorRotator(object):
                 return "%(" + matchkey + ")s"
 
         with open(filename, "r") as f:
-            text = f.read()
+            text = f.read().decode("utf8")
 
         if path.exists(filename + ".src"):
             with open(filename + ".src", "r") as f:
-                text = f.read()
+                text = f.read().decode("utf8")
         else:
             with open(filename + ".src", "w") as f:
-                f.write(text)
+                f.write(text.encode("utf8"))
 
         color_rex.findall(text)
         text = text.replace("%", "%%") # escape format string syntax
@@ -133,7 +133,7 @@ class ColorRotator(object):
         for filename, text in self.stylefiles.iteritems():
             print "writing %s" % filename
             with open(filename, "w") as f:
-                f.write(text % transformed_colors)
+                f.write((text % transformed_colors).encode("utf8"))
 
         print "writing %s" % self.adjustment_filename
         with open(self.adjustment_filename, "w") as f:
