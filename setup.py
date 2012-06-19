@@ -15,7 +15,7 @@ setup(
       description = '',
       long_description = long_description,
       keywords = '',
-      url = '',
+      url = 'http://wakelift.de/posts/colortater/',
       packages = find_packages(),
       entry_points="""
           [console_scripts]
