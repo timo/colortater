@@ -12,6 +12,7 @@ setup(
       name = 'colortater',
       version = VERSION,
       author = 'Timo Paulssen',
+      author_email = "timo+colortater@wakelift.de",
       description = '',
       long_description = long_description,
       keywords = '',
