@@ -1,4 +1,4 @@
-VERSION = '0.6.2'
+VERSION = '0.6.3'
 
 long_description = """
 A tool for recoloring css style sheets with automatic grouping of similar colors.
