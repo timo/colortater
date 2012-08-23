@@ -20,7 +20,7 @@ setup(
       packages = find_packages(),
       entry_points="""
           [console_scripts]
-          colortater = colortater.main.main
+          colortater = colortater.main:main
       """,
     )
 
